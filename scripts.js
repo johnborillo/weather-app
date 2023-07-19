@@ -1,4 +1,5 @@
-getWeather('London');
+getRealtimeWeather('London');
+getForecast('london')
 const weatherFormNode = document.querySelector('.weatherForm');
 const desiredLocation = document.querySelector('.inputWeather');
 let timeoutId;
@@ -12,7 +13,8 @@ weatherFormNode.addEventListener('input', (e) => {
     e.preventDefault();
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-        getWeather(desiredLocation.value);
+        getRealtimeWeather(desiredLocation.value);
+        getForecast(desiredLocation.value);
     }, 500);
 });
 
@@ -41,7 +43,7 @@ weatherFormNode.addEventListener('input', (e) => {
 // }
 
 //using async await
-async function getWeather(location) {
+async function getRealtimeWeather(location) {
     const url = `https://weatherapi-com.p.rapidapi.com/forecast.json?q=${location}&days=3`;
 
     const options = {
@@ -60,7 +62,7 @@ async function getWeather(location) {
         console.log(result);
         printInfo(result)
     } catch (error) {
-        getWeather('London')
+        getRealtimeWeather('London')
         console.log(error);
     }
 
@@ -98,9 +100,13 @@ function printInfo(json) {
 
     //temp value
     const locationTemp = document.createElement('h1');
+    locationTemp.className = 'currentLocationTemp'
     locationTemp.textContent = `${json.current.temp_c}°C`
 
     //C or T toggle
+    const toggleDiv = document.createElement('div');
+    toggleDiv.className = 'toggleDiv';
+
     const tempToggle = document.createElement('input');
     tempToggle.className = 'tempToggle';
     tempToggle.value = 'Change to farenheit'
@@ -117,6 +123,7 @@ function printInfo(json) {
             tempToggle.value = 'Change to farenheit'
         }
     })
+    toggleDiv.appendChild(tempToggle);
 
     // Wind speed
     const windContainer = createWeatherContainer(
@@ -135,7 +142,7 @@ function printInfo(json) {
     // Humidity
     const humidContainer = createWeatherContainer(
         'humidContainer',
-        `${json.current.humidity}%`,
+        `${json.current.humidity}% humidity`,
         '/images/humidity.png'
     );
 
@@ -145,9 +152,10 @@ function printInfo(json) {
     mainWeatherDesc.append(locationConditionImg, locationTemp);
 
     weatherDisplayNode.append(mainWeatherDesc, miscWeatherDesc);
-    document.querySelector('.footer').appendChild(tempToggle);
+    document.querySelector('.footer').appendChild(toggleDiv);
 }
 
+//function for creating the misc weather info
 function createWeatherContainer(className, text, imagePath) {
     const container = document.createElement('div');
     container.className = className;
@@ -163,3 +171,47 @@ function createWeatherContainer(className, text, imagePath) {
 
     return container;
 }
+
+async function getForecast(location) {
+    const url = `https://weatherapi-com.p.rapidapi.com/forecast.json?q=${location}&days=3`;
+    const options = {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'X-RapidAPI-Key': '51cfd8cb66mshefbc902126f28a6p1662c8jsn69f4be6a1f19',
+            'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
+        }
+    }
+
+    try {
+        const response = await fetch(url, options);
+        const result = await response.json();
+        console.log(result);
+        return printForecast(result);
+    } catch (e) {
+        getForecast('london')
+        console.log(e);
+    }
+
+};
+
+function printForecast(json) {
+    const forecastDisplay = document.querySelector('.forecastDisplay');
+    forecastDisplay.className = 'forecastDisplay';
+
+}
+
+function createForecastContainer(className, date, maxTemp, minTemp) {
+    const container = document.createElement('div');
+    container.className = className;
+
+    const containerDate = document.createElement('p');
+    containerDate.textContent = date;
+
+    const containerTemp = document.createElement('p');
+    containerTemp.textContent = `${maxTemp} / ${minTemp}`;
+
+    container.append(containerDate, containerTemp);
+
+}
+
