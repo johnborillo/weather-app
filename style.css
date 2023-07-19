@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+
 * {
     box-sizing: border-box;
 }
 
 html,
 body {
+    overflow: hidden;
     min-height: 100%;
     background: #fafafa;
     color: #000;
@@ -18,7 +21,7 @@ body {
 body {
     margin: 0;
     font-size: 1rem;
-    font-family: sans-serif;
+    font-family: 'Roboto', sans-serif;
     text-rendering: optimizeLegibility;
 }
 
@@ -26,11 +29,10 @@ body {
 
 .weatherInput {
     font-size: 24px;
+    font-weight: 700;
     display: flex;
     flex-direction: row;
     justify-content: center;
-    margin-bottom: 5rem;
-    margin-top: 5rem;
 }
 
 .weatherDisplay {
@@ -42,6 +44,11 @@ body {
     gap: 2rem;
 }
 
+.currentLocationTemp {
+    font-size: 10rem;
+    font-weight: 300;
+}
+
 .mainWeatherDesc {
     display: flex;
     flex-direction: row;
@@ -49,6 +56,10 @@ body {
     justify-content: center;
     align-items: center;
     gap: 2rem;
+}
+
+h4 {
+    font-weight: 300;
 }
 
 .windContainerImg,
@@ -75,7 +86,6 @@ body {
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
-
 }
 
 .input-container {
@@ -86,21 +96,29 @@ body {
 
 .input-container input[type="text"] {
     font-size: 24px;
+    font-weight: 700;
     border: none;
     border-bottom: 2px solid #ccc;
     padding: 5px 0;
     background-color: transparent;
     outline: none;
     transition: width 0.3s ease;
-    width: 80px;
+    width: 90px;
 }
 
 .input-container input[type="text"]:focus {
-    width: 120px;
+    width: 140px;
     /* Adjust the width as per your requirement */
 }
 
 .input-container input[type="text"]:valid {
-    width: 120px;
+    width: 140px;
     /* Adjust the width as per your requirement */
+}
+
+.toggleDiv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 9rem;
 }
