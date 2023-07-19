@@ -1,5 +1,5 @@
 getRealtimeWeather('London');
-getForecast('london')
+getForecast('london');
 const weatherFormNode = document.querySelector('.weatherForm');
 const desiredLocation = document.querySelector('.inputWeather');
 let timeoutId;
@@ -60,18 +60,21 @@ async function getRealtimeWeather(location) {
         const response = await fetch(url, options);
         const result = await response.json();
         console.log(result);
-        printInfo(result)
+        return result;
     } catch (error) {
-        getRealtimeWeather('London')
+        getRealtimeWeather('London');
         console.log(error);
     }
-
 }
 
-function printInfo(json) {
+printInfo()
+
+async function printInfo() {
+    const json = await getRealtimeWeather('london');
+    console.log(json);
+
     const weatherDisplayNode = document.querySelector('.weatherDisplay');
     weatherDisplayNode.innerHTML = '';
-    document.querySelector('.footer').innerHTML = '';
 
     //main weather desc
     const mainWeatherDesc = document.createElement('div');
@@ -103,27 +106,7 @@ function printInfo(json) {
     locationTemp.className = 'currentLocationTemp'
     locationTemp.textContent = `${json.current.temp_c}°C`
 
-    //C or T toggle
-    const toggleDiv = document.createElement('div');
-    toggleDiv.className = 'toggleDiv';
 
-    const tempToggle = document.createElement('input');
-    tempToggle.className = 'tempToggle';
-    tempToggle.value = 'Change to farenheit'
-    tempToggle.setAttribute('type', 'button');
-    let currentUnit = 'C'
-    tempToggle.addEventListener('click', (e) => {
-        if (currentUnit === 'C') {
-            currentUnit = 'F';
-            locationTemp.textContent = `${json.current.temp_f}°F`
-            tempToggle.value = 'Change to celsius'
-        } else {
-            currentUnit = 'C';
-            locationTemp.textContent = `${json.current.temp_c}°C`
-            tempToggle.value = 'Change to farenheit'
-        }
-    })
-    toggleDiv.appendChild(tempToggle);
 
     // Wind speed
     const windContainer = createWeatherContainer(
@@ -152,7 +135,6 @@ function printInfo(json) {
     mainWeatherDesc.append(locationConditionImg, locationTemp);
 
     weatherDisplayNode.append(mainWeatherDesc, miscWeatherDesc);
-    document.querySelector('.footer').appendChild(toggleDiv);
 }
 
 //function for creating the misc weather info
@@ -187,7 +169,7 @@ async function getForecast(location) {
         const response = await fetch(url, options);
         const result = await response.json();
         console.log(result);
-        return printForecast(result);
+        return result;
     } catch (e) {
         getForecast('london')
         console.log(e);
@@ -195,23 +177,107 @@ async function getForecast(location) {
 
 };
 
-function printForecast(json) {
-    const forecastDisplay = document.querySelector('.forecastDisplay');
-    forecastDisplay.className = 'forecastDisplay';
+async function printForecast() {
+    const json = await getForecast('london');
 
+    const forecastDisplayNode = document.querySelector('.forecastDisplay');
+    forecastDisplayNode.innerHTML = '';
+
+    const forecastArray = [
+        'currentDayForecast',
+        'day1Forecast',
+        'day2Forecast'
+    ]
+
+    for (let i = 0; i < forecastArray.length; i++) {
+        const forecastItem = createForecastContainer(
+            forecastArray[i],
+            `${json.forecast.forecastday[i].day.condition.icon}`,
+            `${json.forecast.forecastday[i].date}`,
+            `${json.forecast.forecastday[i].day.maxtemp_c}`,
+            `${json.forecast.forecastday[i].day.mintemp_c}`
+        );
+        forecastDisplayNode.appendChild(forecastItem);
+    }
+
+    // const currentContainer = createForecastContainer(
+    //     'currentDayForecast',
+    //     `${json.forecast.forecastday[0].day.condition.icon}`,
+    //     `${json.forecast.forecastday[0].date}`,
+    //     `${json.forecast.forecastday[0].day.maxtemp_c}`,
+    //     `${json.forecast.forecastday[0].day.maxtemp_c}`
+    // );
+    // const day1Container = createForecastContainer(
+    //     'day1Forecast',
+    //     `${json.forecast.forecastday[1].day.condition.icon}`,
+    //     `${json.forecast.forecastday[1].date}`,
+    //     `${json.forecast.forecastday[1].day.maxtemp_c}`,
+    //     `${json.forecast.forecastday[1].day.maxtemp_c}`
+    // );
+    // const day2Container = createForecastContainer(
+    //     'day2Forecast',
+    //     `${json.forecast.forecastday[2].day.condition.icon}`,
+    //     `${json.forecast.forecastday[2].date}`,
+    //     `${json.forecast.forecastday[2].day.maxtemp_c}`,
+    //     `${json.forecast.forecastday[2].day.maxtemp_c}`
+    // );
+
+    // forecastDisplayNode.append(currentContainer, day1Container, day2Container);
 }
 
-function createForecastContainer(className, date, maxTemp, minTemp) {
+function createForecastContainer(className, img, date, maxTemp, minTemp) {
     const container = document.createElement('div');
     container.className = className;
+    container.style.display = "flex";
+    container.style.flexDirection = "column";
+    container.style.justifyContent = "center";
+    container.style.alignItems = "center";
+
+    const containerImg = document.createElement('img');
+    containerImg.src = img;
 
     const containerDate = document.createElement('p');
+    containerDate.className = `${className}Date`;
     containerDate.textContent = date;
 
     const containerTemp = document.createElement('p');
-    containerTemp.textContent = `${maxTemp} / ${minTemp}`;
+    containerTemp.className = `${className}Temp`;
+    containerTemp.textContent = `${maxTemp}°C / ${minTemp}°C`;
 
-    container.append(containerDate, containerTemp);
-
+    container.append(containerImg, containerDate, containerTemp);
+    return container;
 }
 
+printForecast();
+
+//C or T toggle
+function tempControl() {
+    document.querySelector('.footer').innerHTML = '';
+
+    const locationTemp = document.querySelector('.currentLocationTemp');
+
+    const toggleDiv = document.createElement('div');
+    toggleDiv.className = 'toggleDiv';
+
+    const tempToggle = document.createElement('input');
+    tempToggle.className = 'tempToggle';
+    tempToggle.value = 'Change to farenheit'
+    tempToggle.setAttribute('type', 'button');
+    let currentUnit = 'C'
+    tempToggle.addEventListener('click', (e) => {
+        if (currentUnit === 'C') {
+            currentUnit = 'F';
+            locationTemp.textContent = `${json.current.temp_f}°F`
+            tempToggle.value = 'Change to celsius'
+        } else {
+            currentUnit = 'C';
+            locationTemp.textContent = `${json.current.temp_c}°C`
+            tempToggle.value = 'Change to farenheit'
+        }
+    })
+    toggleDiv.appendChild(tempToggle);
+
+    document.querySelector('.footer').appendChild(toggleDiv);
+}
+
+tempControl();

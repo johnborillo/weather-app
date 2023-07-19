@@ -6,7 +6,7 @@
 
 html,
 body {
-    overflow: hidden;
+    /* overflow: hidden; */
     min-height: 100%;
     background: #fafafa;
     color: #000;
@@ -45,7 +45,7 @@ body {
 }
 
 .currentLocationTemp {
-    font-size: 10rem;
+    font-size: 8rem;
     font-weight: 300;
 }
 
@@ -116,9 +116,17 @@ h4 {
     /* Adjust the width as per your requirement */
 }
 
+
+.forecastDisplay {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8rem;
+}
+
 .toggleDiv {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 9rem;
+    padding: 4.5rem;
 }
