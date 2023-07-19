@@ -6,9 +6,9 @@
 
 html,
 body {
-    /* overflow: hidden; */
+    overflow: hidden;
     min-height: 100%;
-    background: #fafafa;
+    background: #eeeeee;
     color: #000;
     margin-left: 2rem;
     margin-right: 2rem;

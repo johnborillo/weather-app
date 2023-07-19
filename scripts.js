@@ -1,5 +1,3 @@
-getRealtimeWeather('London');
-getForecast('london');
 const weatherFormNode = document.querySelector('.weatherForm');
 const desiredLocation = document.querySelector('.inputWeather');
 let timeoutId;
@@ -12,35 +10,19 @@ weatherFormNode.addEventListener('keydown', (e) => {
 weatherFormNode.addEventListener('input', (e) => {
     e.preventDefault();
     clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-        getRealtimeWeather(desiredLocation.value);
-        getForecast(desiredLocation.value);
+    timeoutId = setTimeout(async () => {
+        // getRealtimeWeather(desiredLocation.value);
+        // getForecast(desiredLocation.value);
+        const location = desiredLocation.value;
+        if (location) {
+            await printInfo(location);
+            await printForecast(location);
+        } else {
+            await printInfo('london');
+            await printForecast('london');
+        }
     }, 500);
 });
-
-//using promises (.then)
-// function getWeather(location) {
-//     const url = `https://weatherapi-com.p.rapidapi.com/forecast.json?q=${location}&days=3`;
-
-//     const options = {
-//         mode: 'cors',
-//         method: 'GET',
-//         headers: {
-//             'X-RapidAPI-Key': '51cfd8cb66mshefbc902126f28a6p1662c8jsn69f4be6a1f19',
-//             'X-RapidAPI-Host': 'weatherapi-com.p.rapidapi.com'
-//         }
-//     }
-
-//     fetch(url, options)
-//         .then(function (response) {
-//             // console.log(response);
-//             return response.json();
-//         })
-//         .then(function (response) {
-//             console.log(response);
-//         })
-
-// }
 
 //using async await
 async function getRealtimeWeather(location) {
@@ -62,15 +44,12 @@ async function getRealtimeWeather(location) {
         console.log(result);
         return result;
     } catch (error) {
-        getRealtimeWeather('London');
         console.log(error);
     }
 }
 
-printInfo()
-
-async function printInfo() {
-    const json = await getRealtimeWeather('london');
+async function printInfo(location) {
+    const json = await getRealtimeWeather(location);
     console.log(json);
 
     const weatherDisplayNode = document.querySelector('.weatherDisplay');
@@ -105,8 +84,6 @@ async function printInfo() {
     const locationTemp = document.createElement('h1');
     locationTemp.className = 'currentLocationTemp'
     locationTemp.textContent = `${json.current.temp_c}°C`
-
-
 
     // Wind speed
     const windContainer = createWeatherContainer(
@@ -171,14 +148,14 @@ async function getForecast(location) {
         console.log(result);
         return result;
     } catch (e) {
-        getForecast('london')
+        printForecast('london')
         console.log(e);
     }
 
 };
 
-async function printForecast() {
-    const json = await getForecast('london');
+async function printForecast(location) {
+    const json = await getForecast(location);
 
     const forecastDisplayNode = document.querySelector('.forecastDisplay');
     forecastDisplayNode.innerHTML = '';
@@ -199,30 +176,6 @@ async function printForecast() {
         );
         forecastDisplayNode.appendChild(forecastItem);
     }
-
-    // const currentContainer = createForecastContainer(
-    //     'currentDayForecast',
-    //     `${json.forecast.forecastday[0].day.condition.icon}`,
-    //     `${json.forecast.forecastday[0].date}`,
-    //     `${json.forecast.forecastday[0].day.maxtemp_c}`,
-    //     `${json.forecast.forecastday[0].day.maxtemp_c}`
-    // );
-    // const day1Container = createForecastContainer(
-    //     'day1Forecast',
-    //     `${json.forecast.forecastday[1].day.condition.icon}`,
-    //     `${json.forecast.forecastday[1].date}`,
-    //     `${json.forecast.forecastday[1].day.maxtemp_c}`,
-    //     `${json.forecast.forecastday[1].day.maxtemp_c}`
-    // );
-    // const day2Container = createForecastContainer(
-    //     'day2Forecast',
-    //     `${json.forecast.forecastday[2].day.condition.icon}`,
-    //     `${json.forecast.forecastday[2].date}`,
-    //     `${json.forecast.forecastday[2].day.maxtemp_c}`,
-    //     `${json.forecast.forecastday[2].day.maxtemp_c}`
-    // );
-
-    // forecastDisplayNode.append(currentContainer, day1Container, day2Container);
 }
 
 function createForecastContainer(className, img, date, maxTemp, minTemp) {
@@ -248,31 +201,38 @@ function createForecastContainer(className, img, date, maxTemp, minTemp) {
     return container;
 }
 
-printForecast();
-
 //C or T toggle
-function tempControl() {
+async function tempControl() {
     document.querySelector('.footer').innerHTML = '';
 
     const locationTemp = document.querySelector('.currentLocationTemp');
+
+    let json;
+
+    const location = desiredLocation.value;
+    if (location) {
+        json = await getRealtimeWeather(location);
+    } else {
+        json = await getRealtimeWeather('london');
+    }
 
     const toggleDiv = document.createElement('div');
     toggleDiv.className = 'toggleDiv';
 
     const tempToggle = document.createElement('input');
     tempToggle.className = 'tempToggle';
-    tempToggle.value = 'Change to farenheit'
+    tempToggle.value = 'Change to farenheit';
     tempToggle.setAttribute('type', 'button');
     let currentUnit = 'C'
     tempToggle.addEventListener('click', (e) => {
         if (currentUnit === 'C') {
             currentUnit = 'F';
             locationTemp.textContent = `${json.current.temp_f}°F`
-            tempToggle.value = 'Change to celsius'
+            tempToggle.value = 'Change to celsius';
         } else {
             currentUnit = 'C';
             locationTemp.textContent = `${json.current.temp_c}°C`
-            tempToggle.value = 'Change to farenheit'
+            tempToggle.value = 'Change to farenheit';
         }
     })
     toggleDiv.appendChild(tempToggle);
@@ -280,4 +240,6 @@ function tempControl() {
     document.querySelector('.footer').appendChild(toggleDiv);
 }
 
+printInfo('london');
+printForecast('london');
 tempControl();
