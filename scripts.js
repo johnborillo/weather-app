@@ -1,9 +1,20 @@
+getWeather('London');
 const weatherFormNode = document.querySelector('.weatherForm');
 const desiredLocation = document.querySelector('.inputWeather');
-weatherFormNode.addEventListener('submit', (e) => {
+let timeoutId;
+weatherFormNode.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+    }
+});
+
+weatherFormNode.addEventListener('input', (e) => {
     e.preventDefault();
-    getWeather(desiredLocation.value)
-})
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+        getWeather(desiredLocation.value);
+    }, 500);
+});
 
 //using promises (.then)
 // function getWeather(location) {
@@ -49,6 +60,7 @@ async function getWeather(location) {
         console.log(result);
         printInfo(result)
     } catch (error) {
+        getWeather('London')
         console.log(error);
     }
 
@@ -57,30 +69,97 @@ async function getWeather(location) {
 function printInfo(json) {
     const weatherDisplayNode = document.querySelector('.weatherDisplay');
     weatherDisplayNode.innerHTML = '';
+    document.querySelector('.footer').innerHTML = '';
 
-    const locationHeading = document.createElement('h1');
-    locationHeading.textContent = `${json.location.country}, ${json.location.name}`
+    //main weather desc
+    const mainWeatherDesc = document.createElement('div');
+    mainWeatherDesc.className = 'mainWeatherDesc';
 
-    const locationFeelslike = document.createElement('h2');
-    locationFeelsLike.textContent = `${json.current.feelslike_c}°C`
+    //misc weather desc
+    const miscWeatherDesc = document.createElement('div');
+    miscWeatherDesc.className = 'miscWeatherDesc';
 
+    //condition
+    const locationCondition = document.querySelector('.condition');
+    let condition = `${json.current.condition.text}`.toLowerCase();
+    if (condition === 'overcast') {
+        condition = 'very cloudy.';
+        locationCondition.textContent = condition;
+    } else if (condition === 'patchy rain possible') {
+        condition = 'partially rainy.';
+        locationCondition.textContent = condition;
+    } else {
+        locationCondition.textContent = `${condition}.`;
+    }
+
+    const locationConditionImg = document.createElement('img');
+    locationConditionImg.className = 'conditionImg';
+    locationConditionImg.src = json.current.condition.icon;
+
+    //temp value
+    const locationTemp = document.createElement('h1');
+    locationTemp.textContent = `${json.current.temp_c}°C`
+
+    //C or T toggle
     const tempToggle = document.createElement('input');
-    tempToggle.setAttribute('type', 'checkbox');
+    tempToggle.className = 'tempToggle';
+    tempToggle.value = 'Change to farenheit'
+    tempToggle.setAttribute('type', 'button');
     let currentUnit = 'C'
     tempToggle.addEventListener('click', (e) => {
         if (currentUnit === 'C') {
             currentUnit = 'F';
-            location
+            locationTemp.textContent = `${json.current.temp_f}°F`
+            tempToggle.value = 'Change to celsius'
         } else {
             currentUnit = 'C';
+            locationTemp.textContent = `${json.current.temp_c}°C`
+            tempToggle.value = 'Change to farenheit'
         }
     })
 
-    const locationCondition = document.createElement('h3');
-    locationCondition.textContent = `${json.current.condition.text}`
+    // Wind speed
+    const windContainer = createWeatherContainer(
+        'windContainer',
+        `${json.current.wind_mph} mph`,
+        '/images/wind.png'
+    );
 
-    const locationConditionImg = document.createElement('img');
-    locationConditionImg.src = json.current.condition.icon;
+    // Precipitation
+    const precipContainer = createWeatherContainer(
+        'precipContainer',
+        `${json.current.precip_mm} mm`,
+        '/images/precip.png'
+    );
 
-    weatherDisplayNode.append(locationHeading, locationCondition, locationFeelsLike, tempToggle, locationConditionImg);
+    // Humidity
+    const humidContainer = createWeatherContainer(
+        'humidContainer',
+        `${json.current.humidity}%`,
+        '/images/humidity.png'
+    );
+
+    // Append the containers to miscWeatherDesc
+    miscWeatherDesc.append(windContainer, precipContainer, humidContainer);
+
+    mainWeatherDesc.append(locationConditionImg, locationTemp);
+
+    weatherDisplayNode.append(mainWeatherDesc, miscWeatherDesc);
+    document.querySelector('.footer').appendChild(tempToggle);
+}
+
+function createWeatherContainer(className, text, imagePath) {
+    const container = document.createElement('div');
+    container.className = className;
+
+    const heading = document.createElement('h4');
+    heading.textContent = text;
+
+    const image = document.createElement('img');
+    image.className = `${className}Img`;
+    image.src = imagePath;
+
+    container.append(image, heading);
+
+    return container;
 }

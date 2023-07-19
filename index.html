@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Current Weather</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://www.dafontfree.net/embed/enVyaWNoLXJvbWFuJmRhdGEvMjgvei8xNDkwMDQvWlVSQ0hOLnR0Zg"
+        rel="stylesheet" type="text/css" />
 </head>
 
 <body>
@@ -15,13 +17,17 @@
     <div class="body">
         <div class="weatherInput">
             <form class="weatherForm">
-                <input type="text" class="inputWeather" placeholder="Ex. London">
-                <input type="submit" value="Check Weather!">
+                <p>Right now in
+                    <span class="input-container">
+                        <input type="text" id="input" class="inputWeather" placeholder="London" required="">
+                        <span class="underline"></span>
+                    </span>
+                    , it is
+                    <span class="condition"></span>
+                </p>
             </form>
         </div>
-        <div class="weatherDisplay">
-
-        </div>
+        <div class="weatherDisplay"></div>
     </div>
     <div class="footer">
 
