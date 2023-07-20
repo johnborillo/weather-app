@@ -18,7 +18,7 @@ function updateInputWidth() {
     const textLength = inputElement.value.length;
     const minWidth = 90; // Minimum width for the input element
     const maxWidth = 200; // Maximum width for the input element (adjust as per your requirement)
-    const width = Math.min(maxWidth, Math.max(minWidth, textLength * 13)); // Adjust the multiplier (10) as per your requirement
+    const width = Math.min(maxWidth, Math.max(minWidth, textLength * 14)); // Adjust the multiplier (10) as per your requirement
 
     inputElement.style.width = width + 'px';
 }
@@ -225,20 +225,11 @@ function createForecastContainer(className, img, date, maxTemp, minTemp) {
 }
 
 //C or T toggle
-async function tempControl() {
+function tempControl() {
     document.querySelector('.footer').innerHTML = '';
 
     let realtimeJson;
     let forecastJson;
-
-    const location = desiredLocation.value;
-    if (location) {
-        realtimeJson = await getRealtimeWeather(location);
-        forecastJsonJson = await getForecast(location);
-    } else {
-        realtimeJson = await getRealtimeWeather('london');
-        forecastJson = await getForecast('london');
-    }
 
     const toggleDiv = document.createElement('div');
     toggleDiv.className = 'toggleDiv';
@@ -248,10 +239,20 @@ async function tempControl() {
     tempToggle.value = 'Change to farenheit';
     tempToggle.setAttribute('type', 'button');
     let currentUnit = 'C'
-    tempToggle.addEventListener('click', (e) => {
+    tempToggle.addEventListener('click', async (e) => {
+        if (desiredLocation.value !== '') {
+            realtimeJson = await getRealtimeWeather(desiredLocation.value);
+            forecastJson = await getForecast(desiredLocation.value);
+        } else {
+            realtimeJson = await getRealtimeWeather('london');
+            forecastJson = await getForecast('london');
+        }
+
         if (currentUnit === 'C') {
             currentUnit = 'F';
-            locationTemp.textContent = `${realtimeJson.current.temp_f}°F`
+            const newRealtimeJson = realtimeJson;
+            console.log(newRealtimeJson.location);
+            locationTemp.textContent = `${newRealtimeJson.current.temp_f}°F`
             for (let i = 0; i <= 2; i++) {
                 const element = document.querySelector(`.day${i}ForecastTemp`);
                 element.textContent = `${forecastJson.forecast.forecastday[i].day.maxtemp_f}°F / ${forecastJson.forecast.forecastday[i].day.mintemp_f}°F`
@@ -259,7 +260,9 @@ async function tempControl() {
             tempToggle.value = 'Change to celsius';
         } else {
             currentUnit = 'C';
-            locationTemp.textContent = `${realtimeJson.current.temp_c}°C`
+            const newRealtimeJson = realtimeJson;
+            console.log(newRealtimeJson.location);
+            locationTemp.textContent = `${newRealtimeJson.current.temp_c}°C`
             containerTemp.textContent = `${forecastJson.current.temp_f}°C`
             for (let i = 0; i <= 2; i++) {
                 const element = document.querySelector(`.day${i}ForecastTemp`);
