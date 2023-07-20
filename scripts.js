@@ -1,11 +1,33 @@
 const weatherFormNode = document.querySelector('.weatherForm');
 const desiredLocation = document.querySelector('.inputWeather');
+let locationTemp;
+let containerTemp;
 let timeoutId;
 weatherFormNode.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         e.preventDefault();
     }
 });
+
+//Hanldes making the underline for input bigger or smaller
+// Get the input element
+const inputElement = document.getElementById('input');
+
+// Function to update the width of the input element
+function updateInputWidth() {
+    const textLength = inputElement.value.length;
+    const minWidth = 90; // Minimum width for the input element
+    const maxWidth = 200; // Maximum width for the input element (adjust as per your requirement)
+    const width = Math.min(maxWidth, Math.max(minWidth, textLength * 13)); // Adjust the multiplier (10) as per your requirement
+
+    inputElement.style.width = width + 'px';
+}
+
+// Attach an event listener to the input element
+inputElement.addEventListener('input', updateInputWidth);
+
+// Call the function initially to set the initial width based on the default value (London)
+updateInputWidth();
 
 weatherFormNode.addEventListener('input', (e) => {
     e.preventDefault();
@@ -81,8 +103,8 @@ async function printInfo(location) {
     locationConditionImg.src = json.current.condition.icon;
 
     //temp value
-    const locationTemp = document.createElement('h1');
-    locationTemp.className = 'currentLocationTemp'
+    locationTemp = document.createElement('h1');
+    locationTemp.className = 'currentLocationTemp';
     locationTemp.textContent = `${json.current.temp_c}°C`
 
     // Wind speed
@@ -148,7 +170,7 @@ async function getForecast(location) {
         console.log(result);
         return result;
     } catch (e) {
-        printForecast('london')
+        printForecast('london');
         console.log(e);
     }
 
@@ -161,7 +183,7 @@ async function printForecast(location) {
     forecastDisplayNode.innerHTML = '';
 
     const forecastArray = [
-        'currentDayForecast',
+        'day0Forecast',
         'day1Forecast',
         'day2Forecast'
     ]
@@ -188,12 +210,13 @@ function createForecastContainer(className, img, date, maxTemp, minTemp) {
 
     const containerImg = document.createElement('img');
     containerImg.src = img;
+    containerImg.style.marginBottom = '-10px';
 
     const containerDate = document.createElement('p');
     containerDate.className = `${className}Date`;
     containerDate.textContent = date;
 
-    const containerTemp = document.createElement('p');
+    containerTemp = document.createElement('p');
     containerTemp.className = `${className}Temp`;
     containerTemp.textContent = `${maxTemp}°C / ${minTemp}°C`;
 
@@ -205,33 +228,43 @@ function createForecastContainer(className, img, date, maxTemp, minTemp) {
 async function tempControl() {
     document.querySelector('.footer').innerHTML = '';
 
-    const locationTemp = document.querySelector('.currentLocationTemp');
-
-    let json;
+    let realtimeJson;
+    let forecastJson;
 
     const location = desiredLocation.value;
     if (location) {
-        json = await getRealtimeWeather(location);
+        realtimeJson = await getRealtimeWeather(location);
+        forecastJsonJson = await getForecast(location);
     } else {
-        json = await getRealtimeWeather('london');
+        realtimeJson = await getRealtimeWeather('london');
+        forecastJson = await getForecast('london');
     }
 
     const toggleDiv = document.createElement('div');
     toggleDiv.className = 'toggleDiv';
 
     const tempToggle = document.createElement('input');
-    tempToggle.className = 'tempToggle';
+    tempToggle.className = 'button type1';
     tempToggle.value = 'Change to farenheit';
     tempToggle.setAttribute('type', 'button');
     let currentUnit = 'C'
     tempToggle.addEventListener('click', (e) => {
         if (currentUnit === 'C') {
             currentUnit = 'F';
-            locationTemp.textContent = `${json.current.temp_f}°F`
+            locationTemp.textContent = `${realtimeJson.current.temp_f}°F`
+            for (let i = 0; i <= 2; i++) {
+                const element = document.querySelector(`.day${i}ForecastTemp`);
+                element.textContent = `${forecastJson.forecast.forecastday[i].day.maxtemp_f}°F / ${forecastJson.forecast.forecastday[i].day.mintemp_f}°F`
+            }
             tempToggle.value = 'Change to celsius';
         } else {
             currentUnit = 'C';
-            locationTemp.textContent = `${json.current.temp_c}°C`
+            locationTemp.textContent = `${realtimeJson.current.temp_c}°C`
+            containerTemp.textContent = `${forecastJson.current.temp_f}°C`
+            for (let i = 0; i <= 2; i++) {
+                const element = document.querySelector(`.day${i}ForecastTemp`);
+                element.textContent = `${forecastJson.forecast.forecastday[i].day.maxtemp_c}°C / ${forecastJson.forecast.forecastday[i].day.mintemp_c}°C`
+            }
             tempToggle.value = 'Change to farenheit';
         }
     })
