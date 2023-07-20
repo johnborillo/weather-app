@@ -111,21 +111,21 @@ async function printInfo(location) {
     const windContainer = createWeatherContainer(
         'windContainer',
         `${json.current.wind_mph} mph`,
-        '/images/wind.png'
+        './images/wind.png'
     );
 
     // Precipitation
     const precipContainer = createWeatherContainer(
         'precipContainer',
         `${json.current.precip_mm} mm`,
-        '/images/precip.png'
+        './images/precip.png'
     );
 
     // Humidity
     const humidContainer = createWeatherContainer(
         'humidContainer',
         `${json.current.humidity}% humidity`,
-        '/images/humidity.png'
+        './images/humidity.png'
     );
 
     // Append the containers to miscWeatherDesc
