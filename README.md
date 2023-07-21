@@ -29,4 +29,4 @@ The weather app is designed to work on modern web browsers, including Google Chr
 
 ---
 
-Thank you for checking out our weather app! If you have any questions or feedback, don't hesitate to reach out. Happy weather tracking! 🌦️
+Thank you for checking out my weather app! If you have any questions or feedback, don't hesitate to reach out. Happy weather tracking! 🌦️
